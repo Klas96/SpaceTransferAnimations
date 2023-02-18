@@ -1,6 +1,7 @@
 import numpy as np
 import math
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 
 """
 Closed objects going thrugh time
@@ -32,28 +33,49 @@ class waveobject:
         self.frequency = frequency
 
         
-    def sineAroundCircle(self, angle):
+    def sineAroundCircle(self, angle, time=1):
         """
         Angel to cartitian point
 
         TODO: Make numpy
         """
-        x = self.cx+(self.radius+self.amplitude*np.sin(self.frequency*angle))*np.cos(angle)
-        y = self.cy+(self.radius+self.amplitude*np.sin(self.frequency*angle))*np.sin(angle)
+        x = self.cx+(self.radius+self.amplitude*np.sin(self.frequency*angle+time))*np.cos(angle)
+        y = self.cy+(self.radius+self.amplitude*np.sin(self.frequency*angle+time))*np.sin(angle)
+
         return x, y
 
-    def plot(self):
+    def plot(self, time=1):
         fig, ax = plt.subplots()
 
-        for i in range(1,360):
+        x_list = []
+        y_list = []
+        
+        for i in range(1,365):
             angle = i * math.pi/180
-            x, y = wo.sineAroundCircle(angle)
-            line1, = ax.plot(x, y, 'x')
-        return fig, ax
+            x, y = wo.sineAroundCircle(angle,time=time)
+            x_list.append(x)
+            y_list.append(y)
+
+        line1, = ax.plot(x_list, y_list)
+
+        return x_list, y_list#, fig, ax
+
+    def animate(self):
+        fig, ax = plt.subplots()
+        line, = ax.plot([], [])
+
+        def update(t):
+            x, y = self.plot(time=t)
+            x = np.array(x)
+            y = np.array(y)
+            line.set_data(x, y)
+            return line,
+
+        anim = FuncAnimation(fig, update, frames=np.arange(0, 365, 1), interval=50, blit=True)
+        return anim
 
 
-wo = waveobject(0, 0, 100, 30, 8)
-
-fig = wo.plot()
-
-plt.show()
+wo = waveobject(0, 0, 0.05, 0.005, 5)
+#wo.plot()
+anim = wo.animate()
+anim.save('animation.mp4')
