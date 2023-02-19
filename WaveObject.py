@@ -52,13 +52,27 @@ class waveobject:
 
         TODO: Make numpy
         """
-
+        
         x = self.cx+self.get_amlification_at_angel(angle,time)*np.cos(angle)
         y = self.cy+self.get_amlification_at_angel(angle,time)*np.sin(angle)
 
         return x, y
 
-    def plot(self, time=1):
+    def plot_frequency_band(self,time=1):
+        ax = plt.subplot()
+        amp_list = []
+        
+        for i in range(1,365):
+            angle = i * math.pi/180
+            amp = self.get_amlification_at_angel(angle,time=time)
+            amp_list.append(amp)
+
+        line1, = ax.plot(range(1,365), amp_list)
+
+        return amp_list#, fig, ax
+
+
+    def plot_in_circel(self, time=1):
         fig, ax = plt.subplots()
 
         x_list = []
@@ -66,7 +80,7 @@ class waveobject:
         
         for i in range(1,365):
             angle = i * math.pi/180
-            x, y = wo.raial_to_2d(angle,time=time)
+            x, y = self.raial_to_2d(angle,time=time)
             x_list.append(x)
             y_list.append(y)
 
@@ -91,5 +105,5 @@ class waveobject:
 
 wo = waveobject(0, 0, 0.05/3, [0.005,0.020,0.001], [5, 2, 30], [0.1, 0.2, 0.3])
 #wo.plot()
-anim = wo.animate()
-anim.save('animation.mp4')
+wo.plot_frequency_band()
+plt.show()
