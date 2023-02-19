@@ -17,7 +17,7 @@ class waveobject:
     """
     Wave form object
     """
-    def __init__(self, x, y, radius, amp, frequency):
+    def __init__(self, x, y, radius, amplitud_list, frequency_list, speed_list):
         
         #Center point of circle
         self.cx = x
@@ -27,20 +27,34 @@ class waveobject:
         self.radius = radius
 
         #Amplitude of wave
-        self.amplitude = amp
+        self.amplitudes = amplitud_list
 
-        #Frequency of the wave
-        self.frequency = frequency
+        #Frequencys of the wave
+        self.frequencys = frequency_list
+
+        #Speed
+        self.speeds = speed_list
 
         
-    def sineAroundCircle(self, angle, time=1):
+    def get_amlification_at_angel(self, angle, time):
+        """
+        Converts angel and time to amplification at certain angel in time
+        """
+
+        amp_at_angel=0
+        for ampl,freq, speed in zip(self.amplitudes, self.frequencys, self.speeds):
+            amp_at_angel += self.radius+ampl*np.sin(freq*angle+time*speed)
+        return amp_at_angel
+
+    def raial_to_2d(self, angle, time=1):
         """
         Angel to cartitian point
 
         TODO: Make numpy
         """
-        x = self.cx+(self.radius+self.amplitude*np.sin(self.frequency*angle+time))*np.cos(angle)
-        y = self.cy+(self.radius+self.amplitude*np.sin(self.frequency*angle+time))*np.sin(angle)
+
+        x = self.cx+self.get_amlification_at_angel(angle,time)*np.cos(angle)
+        y = self.cy+self.get_amlification_at_angel(angle,time)*np.sin(angle)
 
         return x, y
 
@@ -52,7 +66,7 @@ class waveobject:
         
         for i in range(1,365):
             angle = i * math.pi/180
-            x, y = wo.sineAroundCircle(angle,time=time)
+            x, y = wo.raial_to_2d(angle,time=time)
             x_list.append(x)
             y_list.append(y)
 
@@ -75,7 +89,7 @@ class waveobject:
         return anim
 
 
-wo = waveobject(0, 0, 0.05, 0.005, 5)
+wo = waveobject(0, 0, 0.05/3, [0.005,0.020,0.001], [5, 2, 30], [0.1, 0.2, 0.3])
 #wo.plot()
 anim = wo.animate()
 anim.save('animation.mp4')
